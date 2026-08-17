@@ -1,0 +1,53 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 11 is the tutorial's target; 17 and 21 guard against the code
+        # accidentally depending on something removed in a later JDK.
+        java: ['11', '17', '21']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Build and test
+        run: mvn -B --no-transfer-progress verify
+
+      - name: Run every lesson
+        # A lesson that compiles but throws at runtime would otherwise pass CI,
+        # so actually execute each main() and fail on a non-zero exit.
+        run: |
+          set -euo pipefail
+          for lesson in \
+            Lesson01_HelloOntology \
+            Lesson02_DataFactory \
+            Lesson03_ClassExpressions \
+            Lesson04_Annotations \
+            Lesson05_SaveAndLoad \
+            Lesson06_Changes \
+            Lesson07_Reasoning \
+            Lesson08_QueryingAndImports \
+            Lesson09_InferredAxioms \
+            Lesson10_Prefixes
+          do
+            echo "::group::$lesson"
+            mvn -B -q --no-transfer-progress exec:java \
+              -Dexec.mainClass="edu.stanford.protege.tutorial.$lesson"
+            echo "::endgroup::"
+          done
