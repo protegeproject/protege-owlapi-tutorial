@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>edu.stanford.protege.tutorial</groupId>
+  <artifactId>protege-owlapi-tutorial</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Protege OWL API Tutorial</name>
+  <description>
+    A runnable, step-by-step tutorial for the OWL API 4.x, written with Protege
+    plugin development in mind. Targets Java 11.
+  </description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>11</maven.compiler.release>
+
+    <!--
+      OWL API 4.5.x is the last 4.x line. This is the version family that
+      Protege 5.5/5.6 ships with, which is why the tutorial pins to it rather
+      than to OWL API 5.x.
+    -->
+    <owlapi.version>4.5.29</owlapi.version>
+
+    <!-- HermiT 1.3.8.413 is the OWL API 4.x compatible release. -->
+    <hermit.version>1.3.8.413</hermit.version>
+
+    <!--
+      Must match the slf4j-api that owlapi-distribution 4.5.29 pulls in (2.0.11).
+      Pairing a 1.7.x binding with a 2.x api makes SLF4J ignore the binding and
+      fall back to a no-op logger, so all OWL API log output silently vanishes.
+    -->
+    <slf4j.version>2.0.11</slf4j.version>
+    <junit.version>5.10.2</junit.version>
+  </properties>
+
+  <dependencies>
+
+    <!--
+      owlapi-distribution is a shaded "everything" jar: model, parsers,
+      renderers, apibinding, reasoner API. It is the simplest starting point.
+
+      For a real Protege plugin you would instead depend on the individual
+      artifacts (owlapi-api, owlapi-apibinding, ...) with <scope>provided</scope>,
+      because Protege already exports the OWL API to plugin bundles. See
+      docs/09-protege-plugins.md for the details.
+    -->
+    <dependency>
+      <groupId>net.sourceforge.owlapi</groupId>
+      <artifactId>owlapi-distribution</artifactId>
+      <version>${owlapi.version}</version>
+    </dependency>
+
+    <!-- An OWL 2 DL reasoner, so we can show reasoning as well as modelling. -->
+    <dependency>
+      <groupId>net.sourceforge.owlapi</groupId>
+      <artifactId>org.semanticweb.hermit</artifactId>
+      <version>${hermit.version}</version>
+      <exclusions>
+        <!-- Avoid dragging in a second, conflicting copy of the OWL API. -->
+        <exclusion>
+          <groupId>net.sourceforge.owlapi</groupId>
+          <artifactId>owlapi-distribution</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- The OWL API logs through SLF4J; give it a simple console binding. -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+
+      <!--
+        Lets you run any lesson without assembling a classpath by hand:
+            mvn -q compile exec:java -Dexec.mainClass=...
+      -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.2.0</version>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>
