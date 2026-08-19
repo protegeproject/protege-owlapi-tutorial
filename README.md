@@ -1,8 +1,13 @@
 # OWL API 4.x Tutorial (with Protégé in mind)
 
+[![build](https://github.com/protegeproject/protege-owlapi-tutorial/actions/workflows/build.yml/badge.svg)](https://github.com/protegeproject/protege-owlapi-tutorial/actions/workflows/build.yml)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 A runnable, heavily-commented tutorial for the [OWL API](https://github.com/owlcs/owlapi)
 4.x, aimed at people who will end up writing Protégé plugins or tools that read
 and write OWL ontologies.
+
+CI runs the test suite **and every lesson** on JDK 11, 17 and 21.
 
 - **Java 11** (compiled with `--release 11`, so it runs on 11+)
 - **Maven** build
